@@ -1,7 +1,7 @@
 // =====================================================================
 //  XGhidra - Aplikasi Simulasi Operasi Himpunan (Matematika Diskrit)
 //
-//  Operasi yang diselesaikan:
+//  Operasi yang diselesaikan:.
 //    1. Irisan
 //    2. Gabungan
 //    3. Selisih
