@@ -5,7 +5,7 @@
 //    1. Irisan
 //    2. Gabungan
 //    3. Selisih
-//    4. Komplemen
+//    4. Beda Setangkup
 //
 //  Setiap operasi menampilkan: rumus, langkah-langkah, hasil akhir,
 //  kardinalitas, dan pengecekan dengan cara lain.
@@ -132,11 +132,9 @@ Himpunan selisih(const Himpunan &A, const Himpunan &B)
     return H;
 }
 
-bool subhimpunan(const Himpunan &X, const Himpunan &S)
+Himpunan bedaSetangkup(const Himpunan &A, const Himpunan &B)
 {
-    for (size_t i = 0; i < X.size(); i++)
-        if (!ada(S, X[i])) return false;
-    return true;
+    return gabungan(selisih(A, B), selisih(B, A));
 }
 
 // ---------------------------------------------------------------------
@@ -231,70 +229,53 @@ void prosesSelisihLengkap(const Himpunan &A, const Himpunan &B)
     cout << "\nCatatan: A - B tidak selalu sama dengan B - A.\n";
 }
 
-void prosesKomplemen(const Himpunan &X, const string &nx, const Himpunan &S)
+void prosesBedaSetangkup(const Himpunan &A, const Himpunan &B)
 {
-    string op = nx + "'";
-    cout << "\n--- Komplemen " << nx << " (" << op << ") ---\n";
-    cout << "Rumus : " << op << " = S - " << nx << " = {x | x anggota S dan x bukan anggota " << nx << "}\n";
-    cout << "Langkah 1: Periksa setiap Anggota semesta S, apakah TIDAK ada di " << nx << ".\n";
-    if (S.empty()) cout << "   (S kosong, tidak ada Anggota yang diperiksa)\n";
-    Himpunan hasil;
-    for (size_t i = 0; i < S.size(); i++) {
-        bool di = ada(X, S[i]);
-        cout << "   " << S[i] << " ada di " << nx << "? "
-            << (di ? "Ya    -> dibuang" : "Tidak -> masuk komplemen") << "\n";
-        if (!di) hasil.push_back(S[i]);
-    }
-    cout << "Langkah 2: Kumpulkan Anggota yang masuk komplemen.\n";
-    cout << "   " << op << " = " << tulis(hasil) << "\n";
-    cout << "Langkah 3: Hitung kardinalitas.\n";
-    cout << "   |" << op << "| = " << hasil.size() << "\n";
-    cout << "Jawaban akhir : " << op << " = " << tulis(hasil) << "\n";
+    judul("4. BEDA SETANGKUP (A beda-setangkup B)");
+    cout << "Rumus : A (+) B = (A - B) gabungan (B - A)\n\n";
+    cout << "Penyelesaian:\n";
+    Himpunan ab = selisih(A, B);
+    Himpunan ba = selisih(B, A);
+    cout << "Langkah 1: Cari A - B (Anggota A yang tidak ada di B).\n";
+    cout << "   A - B = " << tulis(ab) << "\n";
+    cout << "Langkah 2: Cari B - A (Anggota B yang tidak ada di A).\n";
+    cout << "   B - A = " << tulis(ba) << "\n";
+    Himpunan hasil = gabungan(ab, ba);
+    cout << "Langkah 3: Gabungkan kedua hasil.\n";
+    cout << "   (A - B) gabungan (B - A) = " << tulis(hasil) << "\n";
+    cout << "Langkah 4: Hitung kardinalitas.\n";
+    cout << "   |A (+) B| = " << hasil.size() << "\n";
 
-    int rumus = (int)S.size() - (int)X.size();
-    Himpunan gab = gabungan(X, hasil);
-    cout << "Pengecekan    : (1) |S| - |" << nx << "| = " << S.size() << " - " << X.size()
-        << " = " << rumus << " -> " << (rumus == (int)hasil.size() ? "sama" : "TIDAK sama") << "\n";
-    cout << "                (2) " << nx << " gabungan " << op << " = " << tulis(gab)
-        << " -> " << (gab == S ? "sama dengan S" : "TIDAK sama dengan S") << "\n";
-}
+    cout << "\nJawaban akhir : A (+) B = " << tulis(hasil) << "\n";
 
-void prosesKomplemenLengkap(const Himpunan &A, const Himpunan &B, const Himpunan &S)
-{
-    judul("4. KOMPLEMEN (A' dan B')");
-    cout << "Semesta S = " << tulis(S) << "\n";
-    prosesKomplemen(A, "A", S);
-    prosesKomplemen(B, "B", S);
+    Himpunan gab = gabungan(A, B);
+    Himpunan irs = irisan(A, B);
+    Himpunan cek = selisih(gab, irs);
+    cout << "Pengecekan    : Dengan rumus lain, A (+) B = (A gabungan B) - (A irisan B)\n";
+    cout << "                (A gabungan B) = " << tulis(gab) << "\n";
+    cout << "                (A irisan B)   = " << tulis(irs) << "\n";
+    cout << "                Selisihnya     = " << tulis(cek) << " -> "
+        << (cek == hasil ? "sama dengan hasil" : "TIDAK sama") << "\n";
 }
 
 // ---------------------------------------------------------------------
 //  MENU UTAMA
 // ---------------------------------------------------------------------
-void tampilData(const Himpunan &A, const Himpunan &B, const Himpunan &S)
+void tampilData(const Himpunan &A, const Himpunan &B)
 {
     cout << "\nData saat ini:\n";
     cout << "  A = " << tulis(A) << "   (|A| = " << A.size() << ")\n";
     cout << "  B = " << tulis(B) << "   (|B| = " << B.size() << ")\n";
-    cout << "  S = " << tulis(S) << "   (|S| = " << S.size() << ")\n";
 }
 
-void inputData(Himpunan &A, Himpunan &B, Himpunan &S)
+void inputData(Himpunan &A, Himpunan &B)
 {
     judul("INPUT HIMPUNAN");
     cout << "Masukkan bilangan bulat. Anggota yang sama tidak diizinkan.\n\n";
     A = bacaHimpunan("A");
     cout << "\n";
     B = bacaHimpunan("B");
-    cout << "\nSemesta S dipakai untuk komplemen dan harus memuat semua Anggota A dan B.\n";
-    while (true) {
-        S = bacaHimpunan("S");
-        if (subhimpunan(A, S) && subhimpunan(B, S)) break;
-        Himpunan gab = gabungan(A, B);
-        Himpunan kurang = selisih(gab, S);
-        cout << "S belum memuat Anggota: " << tulis(kurang) << "\n";
-        cout << "Silakan masukkan ulang S.\n\n";
-    }
-    tampilData(A, B, S);
+    tampilData(A, B);
 }
 
 void tampilMenu()
@@ -302,11 +283,11 @@ void tampilMenu()
     cout << "\n==================================================\n";
     cout << "     XGhidra - Simulasi Operasi Himpunan\n";
     cout << "==================================================\n";
-    cout << " [1] Input himpunan (A, B, dan semesta S)\n";
+    cout << " [1] Input himpunan (A dan B)\n";
     cout << " [2] Irisan\n";
     cout << " [3] Gabungan\n";
     cout << " [4] Selisih (A - B dan B - A)\n";
-    cout << " [5] Komplemen (A' dan B')\n";
+    cout << " [5] Beda Setangkup\n";
     cout << " [6] Jalankan semua operasi\n";
     cout << " [0] Keluar\n";
     cout << "--------------------------------------------------\n";
@@ -314,13 +295,13 @@ void tampilMenu()
 
 int main()
 {
-    Himpunan A, B, S;
+    Himpunan A, B;
     bool siap = false;
     int pilihan;
 
     do {
         tampilMenu();
-        if (siap) tampilData(A, B, S);
+        if (siap) tampilData(A, B);
         pilihan = bacaAngka("\nPilih menu (0-6): ");
 
         if (pilihan >= 2 && pilihan <= 6 && !siap) {
@@ -330,18 +311,18 @@ int main()
 
         switch (pilihan) {
             case 1:
-                inputData(A, B, S);
+                inputData(A, B);
                 siap = true;
                 break;
             case 2: prosesIrisan(A, B); break;
             case 3: prosesGabungan(A, B); break;
             case 4: prosesSelisihLengkap(A, B); break;
-            case 5: prosesKomplemenLengkap(A, B, S); break;
+            case 5: prosesBedaSetangkup(A, B); break;
             case 6:
                 prosesIrisan(A, B);
                 prosesGabungan(A, B);
                 prosesSelisihLengkap(A, B);
-                prosesKomplemenLengkap(A, B, S);
+                prosesBedaSetangkup(A, B);
                 break;
             case 0:
                 cout << "\nTerima kasih telah memakai XGhidra.\n";
